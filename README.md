@@ -9,7 +9,7 @@
 
 - [Overview](#overview)
 - [Repository Structure](#repository-structure)
-- [Part 1 — End-to-End RAG System](#part-1--end-to-end-retrieval-augmented-generation-rag-system)
+- [Part 1: End-to-End RAG System](#part-1--end-to-end-retrieval-augmented-generation-rag-system)
   - [1. Data Preprocessing](#1-data-preprocessing)
   - [2. Retrieval Strategy](#2-retrieval-strategy)
   - [3. Model Selection](#3-model-selection)
@@ -17,7 +17,7 @@
   - [5. Evaluation Dataset](#5-evaluation-dataset)
   - [6. Evaluation Metrics](#6-evaluation-metrics)
   - [7. Recommendations](#7-recommendations)
-- [Part 2 — AI Agent with Tool Use](#part-2--ai-agent-with-tool-use)
+- [Part 2: AI Agent with Tool Use](#part-2--ai-agent-with-tool-use)
   - [1. Agent Architecture](#1-agent-architecture)
   - [2. Tool Registry](#2-tool-registry)
   - [3. Agent Behaviors](#3-agent-behaviors)
@@ -67,9 +67,9 @@ Raw documents are cleaned and normalized before being split into retrievable chu
 - **Text Cleaning:** Remove noise (excessive whitespace, special characters, encoding artifacts) and normalize casing where appropriate.
 - **Document Chunking:** Documents are split into overlapping fixed-size chunks to balance context completeness with retrieval granularity.
 - **Metadata Enrichment:** Each chunk is tagged with:
-  - `source_doc` — the filename or document identifier
-  - `chunk_id` — sequential chunk index within the document
-  - `offset` — character offset of the chunk within the original document
+  - `source_doc`: the filename or document identifier
+  - `chunk_id`: sequential chunk index within the document
+  - `offset`: character offset of the chunk within the original document
 
 **Chunking Strategy Justification:**
 
