@@ -2,9 +2,11 @@ import streamlit as st
 import operator
 import time
 from typing import Annotated, List, TypedDict, Union
+import tempfile
+import requests
 
 # LangChain & LangGraph Imports
-from langchain_community.document_loaders import ArxivLoader
+from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
@@ -111,44 +113,49 @@ t = LOCALES[st.session_state.lang]
 
 # 2. KNOWLEDGE BASE (HYBRID RAG PIPELINE)
 def build_knowledge_base(arxiv_id: str):
-    """
-    Builds a Hybrid Search Index (Vector + Keyword) using Chroma and BM25.
-    """
-    with st.spinner(f"📥 Mengunduh dan memproses paper Arxiv ID: {arxiv_id}..."):
-        # A. Load Data from Arxiv
-        loader = ArxivLoader(query=arxiv_id, load_max_docs=1)
-        raw_docs = loader.load()
-        
-        if not raw_docs:
-            st.error("❌ Gagal memuat dokumen dari Arxiv. Silakan periksa kembali Arxiv ID.")
+    with st.spinner(f"{t['loading_arxiv']} {arxiv_id}..."):
+        # --- NEW: BYPASS ARXIV API BLOCK ---
+        # Construct the direct PDF URL
+        pdf_url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
+    
+        try:
+            # 1. Download the PDF manually using requests (mimicking a browser)
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+            response = requests.get(pdf_url, headers=headers)
+            response.raise_for_status() # Raise an error if the download fails
+            
+            # 2. Save it to a temporary file
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+                tmp_file.write(response.content)
+                tmp_file_path = tmp_file.name
+                
+            # 3. Load the temporary PDF using PyMuPDFLoader
+            loader = PyMuPDFLoader(tmp_file_path)
+            raw_docs = loader.load()
+            
+        except Exception as e:
+            st.error(f"{t['err_arxiv']} Details: {e}")
             return None
 
-        # B. Split Text into manageable chunks
+        if not raw_docs:
+            st.error(t["err_arxiv"])
+            return None
+
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)
         chunks = text_splitter.split_documents(raw_docs)
 
-        # C. Generate Embeddings (GPU Accelerated if available, fallback to CPU)
-        try:
-            embeddings = HuggingFaceEmbeddings(
-                model_name="BAAI/bge-base-en-v1.5",
-                model_kwargs={'device': 'cuda'}
-            )
-        except Exception:
-            # Fallback to CPU if CUDA is not configured in the running environment
-            embeddings = HuggingFaceEmbeddings(
-                model_name="BAAI/bge-base-en-v1.5",
-                model_kwargs={'device': 'cpu'}
-            )
+        # CPU-based embeddings for Streamlit Cloud
+        embeddings = HuggingFaceEmbeddings(
+            model_name="BAAI/bge-base-en-v1.5",
+            model_kwargs={'device': 'cpu'}
+        )
 
-        # D. Dense Vector Store Index
         vectorstore = Chroma.from_documents(chunks, embeddings, collection_name="agent_rag_db")
         dense_retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
-        # E. Sparse Keyword Search Index
         bm25_retriever = BM25Retriever.from_documents(chunks)
         bm25_retriever.k = 3
 
-        # F. Ensemble Hybrid Retriever (50/50 Weights)
         ensemble_retriever = EnsembleRetriever(
             retrievers=[bm25_retriever, dense_retriever],
             weights=[0.5, 0.5]
