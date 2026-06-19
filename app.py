@@ -81,6 +81,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+GLOBAL_RAG_ENGINE = None
 
 # Initialize Session States
 if "messages" not in st.session_state:
@@ -160,19 +161,21 @@ def build_knowledge_base(arxiv_id: str):
             retrievers=[bm25_retriever, dense_retriever],
             weights=[0.5, 0.5]
         )
+        global GLOBAL_RAG_ENGINE
+        GLOBAL_RAG_ENGINE = ensemble_retriever
         return ensemble_retriever
 
 # 3. LANGGRAPH AGENT & TOOLS DEFINITIONS
 @tool
 def rag_search(query: str) -> str:
     """
-    Search for technical details about the 'Attention Is All You Need' paper,
-    Transformer architecture, or self-attention mechanisms.
+    Search for technical details about the paper, Transformer architecture, or self-attention mechanisms.
     """
-    if st.session_state.rag_engine is None:
-        return "Error: Pangkalan data (Knowledge Base) belum siap atau belum dibangun."
+    global GLOBAL_RAG_ENGINE
+    if GLOBAL_RAG_ENGINE is None:
+        return "Error: Database RAG is not initialized."
     
-    docs = st.session_state.rag_engine.invoke(query)
+    docs = GLOBAL_RAG_ENGINE.invoke(query)
     return "\n\n".join([f"[Source: Page {d.metadata.get('page','?')}] {d.page_content}" for d in docs])
 
 @tool
