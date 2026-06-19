@@ -98,7 +98,7 @@ def get_llm_engine():
         max_new_tokens=1024,
         temperature=0.1, # Tetap rendah agar agen tidak berhalusinasi saat memanggil tool
         # Pastikan kamu sudah set HF_TOKEN di Streamlit Secrets atau Environment Variable
-        huggingfacehub_api_token=st.secrets["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"] 
+        huggingfacehub_api_token=st.secrets["HF_TOKEN"]
     )
     # ChatHuggingFace bertugas memastikan format pesannya kompatibel dengan LangGraph Agent
     chat_model = ChatHuggingFace(llm=llm)
