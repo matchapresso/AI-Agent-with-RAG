@@ -9,3 +9,4 @@ pymupdf
 sentence-transformers
 arxiv<2.0.0
 protobuf<4.0.0
+langchain-groq
