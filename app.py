@@ -4,6 +4,10 @@ import time
 from typing import Annotated, List, TypedDict, Union
 import tempfile
 import requests
+import os
+
+# Paksa sistem membaca token secara global
+os.environ["HF_TOKEN"] = st.secrets["HF_TOKEN"]
 
 # LangChain & LangGraph Imports
 from langchain_community.document_loaders import PyMuPDFLoader
@@ -147,9 +151,7 @@ def build_knowledge_base(arxiv_id: str):
         # CPU-based embeddings for Streamlit Cloud
         embeddings = HuggingFaceEmbeddings(
             model_name="BAAI/bge-base-en-v1.5",
-            model_kwargs={'device': 'cpu',
-            'token': st.secrets["HF_TOKEN"]
-        }
+            model_kwargs={'device': 'cpu'}
         )
 
         vectorstore = Chroma.from_documents(chunks, embeddings, collection_name="agent_rag_db")
