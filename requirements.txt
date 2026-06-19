@@ -7,3 +7,4 @@ langchain-chroma
 rank_bm25
 pymupdf
 arxiv
+protobuf<4.0.0
