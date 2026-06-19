@@ -19,7 +19,7 @@ from langchain_community.retrievers import BM25Retriever
 from langchain_classic.retrievers.ensemble import EnsembleRetriever
 from langchain_core.tools import tool
 from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage, SystemMessage
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
 
@@ -97,7 +97,6 @@ if "lang" not in st.session_state:
     st.session_state.lang = "id"  # Default Bahasa Indonesia
 
 # Global LLM instance (deterministic outputs for reliability)
-@st.cache_resource
 @st.cache_resource
 def get_llm_engine():
     # Menggunakan Llama 3.3 70B via Groq (Sangat pintar pakai tools & super cepat)
@@ -219,8 +218,8 @@ def compile_agent_graph():
     def agent_node(state):
         # Menyisipkan instruksi bahasa respons di System Prompt internal agen
         system_instruction = f" Respond to the user strictly in the language they used or prefer. Current interface language is set to: {st.session_state.lang}."
-        messages = state['messages']
-        return {"messages": [llm_with_tools.invoke(state['messages'])]}
+        messages_with_system = [SystemMessage(content=system_instruction)] + state['messages']
+        return {"messages": [llm_with_tools.invoke(messages_with_system)]}
 
     def router(state):
         if state['messages'][-1].tool_calls:
