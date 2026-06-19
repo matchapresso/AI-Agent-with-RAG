@@ -26,7 +26,7 @@ from langgraph.prebuilt import ToolNode
 # Streamlit Page Configuration for Language switching and session state management
 LOCALES = {
     "id": {
-        "page_title": "Qwen 2.5 LangGraph AI Agent",
+        "page_title": "Llama 3.3 (via Groq) AI Agent",
         "sidebar_header": "⚙️ Konfigurasi Sistem",
         "sidebar_desc": "Sesuaikan basis pengetahuan dan pengaturan AI Agent di sini.",
         "lang_label": "🌐 Pilih Bahasa / Language:",
@@ -36,7 +36,7 @@ LOCALES = {
         "sidebar_util": "🛠️ Utilitas",
         "btn_clear": "🗑️ Hapus Riwayat Obrolan",
         "title": "🤖 LangGraph AI Agent dengan Hybrid RAG",
-        "welcome": "Selamat datang! Sistem ini menggunakan model **Qwen 2.5 (via HuggingFace)** yang diorkestrasi oleh **LangGraph** untuk melakukan penalaran mandiri (*autonomous reasoning*) dan menggunakan *external tools* untuk menyelesaikan instruksi Anda.",
+        "welcome": "Selamat datang! Sistem ini menggunakan model **Llama 3.3 (via Groq)** yang diorkestrasi oleh **LangGraph** untuk melakukan penalaran mandiri (*autonomous reasoning*) dan menggunakan *external tools* untuk menyelesaikan instruksi Anda.",
         "info_init": "💡 **Langkah Awal:** Silakan klik tombol **'Bangun & Inisialisasi Agent'** di panel samping untuk memuat database RAG dan mengaktifkan agen.",
         "status_ready": "🟢 AI Agent siap menerima perintah (RAG, Math, Summarization, Text Transformation).",
         "chat_placeholder": "Tanyakan detail paper, hitungan matematika, atau transformasi teks...",
@@ -50,7 +50,7 @@ LOCALES = {
         "loading_arxiv": "📥 Mengunduh dan memproses paper Arxiv ID:"
     },
     "en": {
-        "page_title": "Qwen 2.5 LangGraph AI Agent",
+        "page_title": "Llama 3.3 (via Groq) AI Agent",
         "sidebar_header": "⚙️ System Configuration",
         "sidebar_desc": "Customize the knowledge base and AI Agent settings here.",
         "lang_label": "🌐 Pilih Bahasa / Language:",
@@ -60,7 +60,7 @@ LOCALES = {
         "sidebar_util": "🛠️ Utilities",
         "btn_clear": "🗑️ Clear Chat History",
         "title": "🤖 LangGraph AI Agent with Hybrid RAG",
-        "welcome": "Welcome! This system uses the **Qwen 2.5 (via HuggingFace)** model orchestrated by **LangGraph** to perform autonomous reasoning and use external tools to solve your instructions.",
+        "welcome": "Welcome! This system uses the **Llama 3.3 (via Groq)** model orchestrated by **LangGraph** to perform autonomous reasoning and use external tools to solve your instructions.",
         "info_init": "💡 **Initial Step:** Please click the **'Build & Initialize Agent'** button in the sidebar to load the RAG database and activate the agent.",
         "status_ready": "🟢 AI Agent is ready to receive commands (RAG, Math, Summarization, Text Transformation).",
         "chat_placeholder": "Ask about paper details, mathematical calculations, or text transformations...",
@@ -279,7 +279,7 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
-    st.caption("🤖 **Engine:** Qwen 2.5 (7B) via HuggingFace API<br>🧠 **Orchestrator:** LangGraph StateGraph", unsafe_allow_html=True)
+    st.caption("🤖 **LLM Engine:** Llama 3.3 (via Groq)<br>🧠 **Embeddings:** BAAI (via HF)<br>⚙️ **Orchestrator:** LangGraph StateGraph", unsafe_allow_html=True)
 
 
 # --- MAIN CHAT PANEL ---
