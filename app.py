@@ -147,8 +147,9 @@ def build_knowledge_base(arxiv_id: str):
         # CPU-based embeddings for Streamlit Cloud
         embeddings = HuggingFaceEmbeddings(
             model_name="BAAI/bge-base-en-v1.5",
-            model_kwargs={'device': 'cpu'},
+            model_kwargs={'device': 'cpu',
             'token': st.secrets["HF_TOKEN"]
+        }
         )
 
         vectorstore = Chroma.from_documents(chunks, embeddings, collection_name="agent_rag_db")
