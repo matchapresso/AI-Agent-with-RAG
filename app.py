@@ -112,33 +112,24 @@ llm_engine = get_llm_engine()
 t = LOCALES[st.session_state.lang]
 
 # 2. KNOWLEDGE BASE (HYBRID RAG PIPELINE)
-def build_knowledge_base(arxiv_id: str):
-    with st.spinner(f"{t['loading_arxiv']} {arxiv_id}..."):
-        # --- NEW: BYPASS ARXIV API BLOCK ---
-        # Construct the direct PDF URL
-        pdf_url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
-    
+def build_knowledge_base(uploaded_file):
+    with st.spinner("📥 Sedang memproses dokumen PDF..."):
         try:
-            # 1. Download the PDF manually using requests (mimicking a browser)
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-            response = requests.get(pdf_url, headers=headers)
-            response.raise_for_status() # Raise an error if the download fails
-            
-            # 2. Save it to a temporary file
+            # 1. Simpan file yang diunggah ke temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
-                tmp_file.write(response.content)
+                tmp_file.write(uploaded_file.getvalue())
                 tmp_file_path = tmp_file.name
                 
-            # 3. Load the temporary PDF using PyMuPDFLoader
+            # 2. Muat file sementara tersebut menggunakan PyMuPDFLoader
             loader = PyMuPDFLoader(tmp_file_path)
             raw_docs = loader.load()
             
         except Exception as e:
-            st.error(f"{t['err_arxiv']} Details: {e}")
+            st.error(f"Gagal memproses file PDF. Detail: {e}")
             return None
 
         if not raw_docs:
-            st.error(t["err_arxiv"])
+            st.error("Dokumen kosong atau tidak terbaca.")
             return None
 
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)
@@ -160,6 +151,7 @@ def build_knowledge_base(arxiv_id: str):
             retrievers=[bm25_retriever, dense_retriever],
             weights=[0.5, 0.5]
         )
+        
         global GLOBAL_RAG_ENGINE
         GLOBAL_RAG_ENGINE = ensemble_retriever
         return ensemble_retriever
@@ -172,10 +164,15 @@ def rag_search(query: str) -> str:
     """
     global GLOBAL_RAG_ENGINE
     if GLOBAL_RAG_ENGINE is None:
-        return "Error: Database RAG is not initialized."
+        # Pesan ini dibaca oleh Agen, lalu Agen akan menyampaikannya ke kamu
+        return "SYSTEM ERROR: Database PDF belum tersedia. Tolong beri tahu user dengan ramah untuk mengunggah dokumen PDF di panel samping (sidebar) terlebih dahulu sebelum menggunakan fitur pencarian paper."
     
     docs = GLOBAL_RAG_ENGINE.invoke(query)
-    return "\n\n".join([f"[Source: Page {d.metadata.get('page','?')}] {d.page_content}" for d in docs])
+    full_text = "\n\n".join([f"[Source: Page {d.metadata.get('page','?')}] {d.page_content}" for d in docs])
+    
+    if len(full_text) > 1500:
+        return full_text[:1500] + "\n\n...[Teks dipotong karena terlalu panjang]"
+    return full_text
 
 @tool
 def calculator(expression: str) -> str:
@@ -235,7 +232,10 @@ def compile_agent_graph():
     workflow.add_edge("tools", "agent")
 
     return workflow.compile()
-
+    
+if st.session_state.agent_app is None:
+    st.session_state.agent_app = compile_agent_graph()
+    
 # 4. USER INTERACTION & LAYOUT
 # --- SIDEBAR PANEL ---
 with st.sidebar:
@@ -261,14 +261,21 @@ with st.sidebar:
     st.divider()
     
     # Input Data Knowledge Base
-    arxiv_input = st.text_input(t["arxiv_label"], value="1706.03762")
+    # 📁 FITUR BARU: Upload Dokumen PDF Sendiri
+    uploaded_pdf = st.file_uploader("📂 Upload Paper PDF Anda:", type=["pdf"])
     
     if st.button(t["btn_init"], use_container_width=True):
-        st.session_state.rag_engine = build_knowledge_base(arxiv_input)
-        if st.session_state.rag_engine:
-            st.session_state.agent_app = compile_agent_graph()
-            st.success(t["success_init"])
-            st.balloons()
+        if uploaded_pdf is not None:
+            # Lempar file yang diunggah ke fungsi RAG
+            st.session_state.rag_engine = build_knowledge_base(uploaded_pdf)
+            
+            if st.session_state.rag_engine:
+                st.session_state.agent_app = compile_agent_graph()
+                st.success(t["success_init"])
+                st.balloons()
+        else:
+            # Beri peringatan jika user menekan tombol tapi belum upload file
+            st.warning("⚠️ Silakan upload dokumen PDF terlebih dahulu!")
             
     st.divider()
     
@@ -285,6 +292,7 @@ with st.sidebar:
 # --- MAIN CHAT PANEL ---
 st.title(t["title"])
 st.markdown(t["welcome"])
+st.success("🟢 AI Agent standby! Anda bisa langsung memakai fitur **Kalkulator, Summarizer, atau Text Transformer**. Untuk fitur **RAG Search**, silakan upload PDF di panel kiri.")
 
 # Cek kesiapan agen
 if st.session_state.agent_app is None:
