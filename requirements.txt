@@ -6,5 +6,5 @@ langchain-huggingface
 langchain-chroma
 rank_bm25
 pymupdf
-arxiv
+arxiv<2.0.0
 protobuf<4.0.0
