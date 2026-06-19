@@ -11,6 +11,7 @@ os.environ["HF_TOKEN"] = st.secrets["HF_TOKEN"]
 
 # LangChain & LangGraph Imports
 from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_groq import ChatGroq
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
@@ -96,19 +97,14 @@ if "lang" not in st.session_state:
 
 # Global LLM instance (deterministic outputs for reliability)
 @st.cache_resource
+@st.cache_resource
 def get_llm_engine():
-    # Setup Endpoint API ke HuggingFace
-    llm = HuggingFaceEndpoint(
-        repo_id="Qwen/Qwen2.5-7B-Instruct",
-        task="text-generation",
-        max_new_tokens=1024,
-        temperature=0.1, # Tetap rendah agar agen tidak berhalusinasi saat memanggil tool
-        # Pastikan kamu sudah set HF_TOKEN di Streamlit Secrets atau Environment Variable
-        huggingfacehub_api_token=st.secrets["HF_TOKEN"]
+    # Menggunakan Llama 3.3 70B via Groq (Sangat pintar pakai tools & super cepat)
+    return ChatGroq(
+        model="llama-3.3-70b-versatile", 
+        temperature=0.1,
+        api_key=st.secrets["GROQ_API_KEY"]
     )
-    # ChatHuggingFace bertugas memastikan format pesannya kompatibel dengan LangGraph Agent
-    chat_model = ChatHuggingFace(llm=llm)
-    return chat_model
 
 llm_engine = get_llm_engine()
 
