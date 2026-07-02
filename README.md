@@ -397,4 +397,4 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 
 ---
 
-> *This repository is a submission for the GDP Labs SDE GenAI Practical Test. All contents are confidential per GDP Labs guidelines.*
+> *This repository is a submission for a Practical Test. All contents are confidential per the company's guidelines.*
