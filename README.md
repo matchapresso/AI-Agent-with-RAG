@@ -374,6 +374,8 @@ jupyter
 
 > ⚠️ A GPU is recommended for local inference but not required. CPU inference is supported at reduced speed.
 
+### Option C: Docker (Recommended for running the app)
+See [Docker Deployment](#-docker-deployment) below.
 ---
 
 ## Running the Notebooks
@@ -385,6 +387,46 @@ Run the notebooks **in order**:
 2. **`2. AI Agent with Tool Use.ipynb`** — Imports the RAG components from Notebook 1, registers all tools, initializes the ReAct agent, and runs the 5 test transcripts.
 
 Each notebook is self-contained with markdown cells explaining every step.
+
+---
+
+## 🐳 Docker Deployment
+
+The Streamlit application (`app.py`) is containerized for consistent, reproducible deployment across environments — moving beyond local execution toward a portable, production-style setup.
+
+### Prerequisites
+- Docker Engine ≥ 24.x
+- Docker Compose ≥ 2.x
+
+### Environment Variables
+Create a `.env` file in the project root:
+```
+HF_TOKEN=your_huggingface_token_here
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+> `.env` is excluded from version control via `.gitignore` to avoid leaking credentials.
+
+### Build & Run
+
+**Option A: Docker Compose (recommended)**
+```bash
+docker compose up --build
+```
+
+**Option B: Manual Docker build**
+```bash
+docker build -t ai-agent-rag -f dockerfile .
+docker run -p xxxx:xxxx --env-file .env ai-agent-rag
+```
+
+The app will be available at `http://localhost:xxxx`.
+
+### From Local Streamlit to Containerized Deployment
+This app was initially developed and validated locally via `streamlit run app.py`. It has since been containerized with Docker to:
+- Ensure consistent behavior across different machines/environments
+- Remove dependency on locally installed Python versions and system packages
+- Simplify handoff and reproducibility for anyone running the project
 
 ---
 
