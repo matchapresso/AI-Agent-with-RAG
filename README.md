@@ -394,4 +394,4 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 
 ---
 
-> *This repository is a submission for a Practical Test. All contents are confidential per the company's guidelines.*
+> *This repository is a self-project.*
