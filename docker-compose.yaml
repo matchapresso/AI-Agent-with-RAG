@@ -1,0 +1,11 @@
+services:
+  ai-agent-app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: rag_agent_container
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    restart: always

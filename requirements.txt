@@ -1,12 +1,3 @@
-streamlit
-langgraph
-langchain
-langchain-community
-langchain-huggingface
-langchain-chroma
-rank_bm25
-pymupdf
-sentence-transformers
-arxiv<2.0.0
-protobuf<4.0.0
-langchain-groq
+streamlit>=1.38,<2
+pymupdf>=1.24.0
+python-dotenv>=1.0.0
