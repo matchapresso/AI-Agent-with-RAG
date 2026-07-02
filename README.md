@@ -1,8 +1,5 @@
 # AI Agent with RAG (Portfolio Purpose Only)
 
-> **Author:** Areta Vahtsa Nur Kirana  
-> **Notebooks:** `1. End-to-end RAG.ipynb` · `2. AI Agent with Tool Use.ipynb`
-
 ---
 
 ## 📋 Table of Contents
